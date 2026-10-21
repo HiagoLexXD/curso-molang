@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini curso de Molang</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#f2f5ee;--surface:#fff;--ink:#1c2920;--mute:#55655a;--acc:#2f7a34;--accbg:#dcebd6;--code:#18231c;--codeink:#d9efd2;--line:#cfd9c8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121813;--surface:#1a231c;--ink:#e3ebde;--mute:#9bab9f;--acc:#86cf79;--accbg:#223a24;--code:#0b100c;--codeink:#cfe9c8;--line:#2c3a2f}}
+:root[data-theme="dark"]{--bg:#121813;--surface:#1a231c;--ink:#e3ebde;--mute:#9bab9f;--acc:#86cf79;--accbg:#223a24;--code:#0b100c;--codeink:#cfe9c8;--line:#2c3a2f}
+html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 "Bricolage Grotesque",system-ui,sans-serif}
+header{padding:56px 20px 36px;max-width:760px;margin:0 auto}
+h1{font-size:clamp(2.4rem,8vw,4.2rem);line-height:1;margin:0 0 16px;font-weight:800;letter-spacing:-.03em}
+header p{color:var(--mute);margin:0;max-width:56ch;font-size:1.1rem}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-block:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:10px 20px}
+nav a{flex:none;color:var(--ink);text-decoration:none;font-size:.9rem;padding:6px 12px;border-radius:6px;border:1px solid var(--line)}
+nav a.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:6}
+main{max-width:760px;margin:0 auto;padding:0 20px 80px}
+section{padding-top:48px}
+h2{font-size:1.9rem;line-height:1.15;margin:0 0 16px;letter-spacing:-.02em}
+h3{font-size:1.15rem;margin:28px 0 8px}
+p,li{max-width:68ch}
+code{font-family:"JetBrains Mono",monospace;font-size:.86em;background:var(--accbg);padding:1px 6px;border-radius:4px}
+pre{background:var(--code);color:var(--codeink);padding:16px;border-radius:8px;overflow-x:auto;font:.85rem/1.55 "JetBrains Mono",monospace;margin:14px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:.93rem;background:var(--surface)}
+th,td{text-align:left;padding:8px 12px;border:1px solid var(--line);vertical-align:top}
+th{background:var(--accbg)}
+.tip{border-left:4px solid var(--acc);background:var(--accbg);padding:10px 16px;border-radius:0 6px 6px 0;margin:16px 0}
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:600}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+footer{text-align:center;color:var(--mute);font-size:.9rem;padding:0 20px 40px}
+</style>
+</head>
+<body>
+<header>
+<h1>Molang, do zero</h1>
+<p>A linguagem de expressões do Minecraft Bedrock, explicada em 8 lições curtas com exemplos e exercícios. Serve para animações, texturas, partículas e comportamentos de add-ons.</p>
+</header>
+<nav id="nav"></nav>
+<main>
+
+<section id="l1"><h2>Lição 1: O que é Molang e onde ele é usado</h2>
+<p>Molang não é uma linguagem completa como Python. É uma <strong>linguagem de expressões</strong>: você escreve uma conta ou condição e ela devolve um valor (número, verdadeiro/falso ou texto).</p>
+<h3>Onde aparece</h3>
+<ul>
+<li><strong>Animações</strong> (<code>animations/*.json</code>): mover ossos conforme velocidade, tempo etc.</li>
+<li><strong>Animation Controllers</strong>: trocar de estado (parado, andando, atacando).</li>
+<li><strong>Render Controllers</strong>: escolher textura, modelo ou material por condição.</li>
+<li><strong>Partículas</strong>: cor, tamanho, direção e quantidade.</li>
+<li><strong>Behavior Packs</strong>: filtros, eventos e propriedades de entidades.</li>
+</ul>
+<h3>Regras básicas de sintaxe</h3>
+<ul>
+<li>Não diferencia maiúsculas de minúsculas (<code>Math.Sin</code> = <code>math.sin</code>).</li>
+<li>Com mais de uma instrução, cada uma termina em <code>;</code>.</li>
+<li>Números são decimais: <code>1</code>, <code>0.5</code>, <code>-3</code>.</li>
+<li><code>true</code> vale <code>1</code> e <code>false</code> vale <code>0</code>.</li>
+<li>Textos usam aspas simples: <code>'texto'</code>.</li>
+</ul>
+<p>O exemplo mais simples, dentro de um JSON:</p>
+<pre><code>"rotation": ["math.sin(q.anim_time * 360) * 30", 0, 0]</code></pre>
+<p>O osso balança 30° para cima e para baixo, um ciclo por segundo.</p>
+</section>
+
+<section id="l2"><h2>Lição 2: Namespaces</h2>
+<p>Quase tudo em Molang começa com um prefixo que indica <strong>de onde vem o dado</strong>.</p>
+<div class="tw"><table>
+<tr><th>Prefixo</th><th>Curto</th><th>Para quê</th></tr>
+<tr><td><code>query.</code></td><td><code>q.</code></td><td>Lê informações do jogo (somente leitura)</td></tr>
+<tr><td><code>math.</code></td><td></td><td>Funções matemáticas</td></tr>
+<tr><td><code>variable.</code></td><td><code>v.</code></td><td>Variáveis suas, que persistem</td></tr>
+<tr><td><code>temp.</code></td><td><code>t.</code></td><td>Variáveis temporárias, só durante a expressão</td></tr>
+<tr><td><code>context.</code></td><td><code>c.</code></td><td>Dados do contexto (ex.: <code>c.owner</code>)</td></tr>
+<tr><td><code>texture.</code> <code>geometry.</code> <code>material.</code> <code>array.</code></td><td></td><td>Referências a recursos</td></tr>
+</table></div>
+<h3>Queries úteis para começar</h3>
+<div class="tw"><table>
+<tr><th>Query</th><th>Devolve</th></tr>
+<tr><td><code>q.anim_time</code></td><td>Segundos desde o início da animação</td></tr>
+<tr><td><code>q.life_time</code></td><td>Segundos de vida da entidade</td></tr>
+<tr><td><code>q.is_baby</code></td><td>1 se for filhote, senão 0</td></tr>
+<tr><td><code>q.is_on_ground</code></td><td>1 se estiver no chão</td></tr>
+<tr><td><code>q.is_sneaking</code></td><td>1 se estiver agachado</td></tr>
+<tr><td><code>q.ground_speed</code></td><td>Velocidade horizontal</td></tr>
+<tr><td><code>q.health</code> / <code>q.max_health</code></td><td>Vida atual / máxima</td></tr>
+<tr><td><code>q.variant</code></td><td>Número da variante</td></tr>
+<tr><td><code>q.modified_distance_moved</code></td><td>Distância andada (ótima para animar o andar)</td></tr>
+<tr><td><code>q.is_moving</code></td><td>1 se estiver se movendo</td></tr>
+</table></div>
+<p><code>q.is_baby</code> é informado pelo jogo. Já <code>v.minha_coisa</code> é você quem define e usa.</p>
+</section>
+
+<section id="l3"><h2>Lição 3: Operadores</h2>
+<h3>Aritméticos: <code>+ - * /</code></h3>
+<pre><code>q.health / q.max_health      // porcentagem de vida (0 a 1)
+q.ground_speed * 2 + 1</code></pre>
+<h3>Comparação: <code>== != &lt; &gt; &lt;= &gt;=</code></h3>
+<pre><code>q.health &lt; 5                 // 1 se a vida for menor que 5
+q.variant == 2</code></pre>
+<h3>Lógicos: <code>&amp;&amp;</code> (e), <code>||</code> (ou), <code>!</code> (não)</h3>
+<pre><code>q.is_on_ground &amp;&amp; q.is_moving   // no chão E se movendo
+!q.is_baby                      // NÃO é filhote</code></pre>
+<h3>Ternário (se/senão)</h3>
+<p><code>condição ? valor_se_verdadeiro : valor_se_falso</code></p>
+<pre><code>q.is_baby ? 0.5 : 1.0           // escala 0.5 para filhote, 1.0 para adulto</code></pre>
+<h3>Coalescência nula <code>??</code></h3>
+<p>Usa um valor padrão se a variável ainda não existe.</p>
+<pre><code>v.contador ?? 0</code></pre>
+<div class="tip">Variáveis não inicializadas valem <code>0</code>, mas o <code>??</code> deixa a intenção clara e evita surpresas.</div>
+</section>
+
+<section id="l4"><h2>Lição 4: Funções matemáticas</h2>
+<div class="tw"><table>
+<tr><th>Função</th><th>O que faz</th></tr>
+<tr><td><code>math.sin(x)</code> <code>math.cos(x)</code></td><td>Seno e cosseno. <strong>Usam graus</strong>, não radianos</td></tr>
+<tr><td><code>math.abs(x)</code></td><td>Valor absoluto</td></tr>
+<tr><td><code>math.sqrt(x)</code></td><td>Raiz quadrada</td></tr>
+<tr><td><code>math.pow(x, y)</code></td><td>Potência</td></tr>
+<tr><td><code>math.min(a, b)</code> <code>math.max(a, b)</code></td><td>Menor / maior</td></tr>
+<tr><td><code>math.clamp(x, min, max)</code></td><td>Limita x entre min e max</td></tr>
+<tr><td><code>math.lerp(a, b, t)</code></td><td>Vai de a até b conforme t (0 a 1)</td></tr>
+<tr><td><code>math.floor</code> <code>math.ceil</code> <code>math.round</code></td><td>Arredondamentos</td></tr>
+<tr><td><code>math.random(min, max)</code></td><td>Decimal aleatório</td></tr>
+<tr><td><code>math.random_integer(min, max)</code></td><td>Inteiro aleatório</td></tr>
+<tr><td><code>math.mod(x, y)</code></td><td>Resto da divisão</td></tr>
+</table></div>
+<pre><code>math.sin(q.anim_time * 180) * 10        // oscilação suave
+math.clamp(q.ground_speed * 20, 0, 80)  // ângulo limitado a 80°
+math.random_integer(0, 3)               // sorteia 0, 1, 2 ou 3</code></pre>
+<div class="tip"><strong>Por que <code>* 360</code>?</strong> Como <code>sin</code> usa graus, 360° é um ciclo completo. Multiplicar o tempo por 360 dá 1 ciclo por segundo; por 180, 1 ciclo a cada 2 segundos.</div>
+</section>
+
+<section id="l5"><h2>Lição 5: Variáveis e várias linhas</h2>
+<p><code>v.</code> persiste enquanto a entidade existir e pode ser lida por outros arquivos. <code>t.</code> some após a expressão terminar, ideal para cálculos intermediários.</p>
+<pre><code>v.velocidade = q.ground_speed * 2;
+
+t.angulo = math.sin(q.anim_time * 360) * 20;
+return t.angulo * 2;</code></pre>
+<h3>Regra do <code>return</code></h3>
+<ul>
+<li><strong>Uma única expressão:</strong> o resultado é devolvido automaticamente.</li>
+<li><strong>Várias instruções (com <code>;</code>):</strong> use <code>return</code> para dizer qual valor devolver.</li>
+</ul>
+<pre><code>"math.sin(q.anim_time * 360) * 20"             // expressão única: ok
+"t.a = q.ground_speed * 10; return t.a * 2;"   // várias: precisa de return</code></pre>
+<h3>Structs e arrays</h3>
+<pre><code>v.pet.fome = 5;
+v.pet.nome = 'Rex';
+
+array.cores[2]       // array definido em render controller</code></pre>
+<h3>Loops</h3>
+<pre><code>t.i = 0;
+t.soma = 0;
+loop(5, {
+  t.soma = t.soma + t.i;
+  t.i = t.i + 1;
+});
+return t.soma;       // 0+1+2+3+4 = 10</code></pre>
+<p>Dentro do <code>loop(vezes, {...})</code> você pode usar <code>break;</code> (sai do loop) e <code>continue;</code> (pula para a próxima volta). Use loops com moderação: pesam no desempenho.</p>
+</section>
+
+<section id="l6"><h2>Lição 6: Molang em animações</h2>
+<pre><code>{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.meu_mob.andar": {
+      "loop": true,
+      "bones": {
+        "perna_direita": {
+          "rotation": ["math.cos(q.modified_distance_moved * 38.17) * 60", 0, 0]
+        },
+        "perna_esquerda": {
+          "rotation": ["math.cos(q.modified_distance_moved * 38.17 + 180) * 60", 0, 0]
+        },
+        "cabeca": {
+          "rotation": [0, "math.sin(q.anim_time * 90) * 15", 0]
+        }
+      }
+    }
+  }
+}</code></pre>
+<ul>
+<li>Os três valores de <code>rotation</code> são <strong>[X, Y, Z]</strong>.</li>
+<li>As pernas usam a distância andada: param quando a entidade para e acompanham a velocidade.</li>
+<li>A perna esquerda soma <code>180</code> graus à fase para balançar no sentido oposto.</li>
+<li>A cabeça gira levemente de um lado para o outro com o tempo.</li>
+</ul>
+<h3>Intensidade conforme a velocidade</h3>
+<pre><code>"math.cos(q.modified_distance_moved * 38.17) * 60 * math.clamp(q.modified_move_speed, 0, 1)"</code></pre>
+</section>
+
+<section id="l7"><h2>Lição 7: Render Controllers e entidades</h2>
+<h3>Trocar textura por variante</h3>
+<pre><code>{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.meu_mob": {
+      "arrays": {
+        "textures": {
+          "Array.skins": ["Texture.normal", "Texture.vermelho", "Texture.azul"]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [{ "*": "Material.default" }],
+      "textures": ["Array.skins[q.variant]"]
+    }
+  }
+}</code></pre>
+<p>Se <code>q.variant</code> for <code>1</code>, a textura usada é <code>Texture.vermelho</code>.</p>
+<h3>Tamanho de filhote (client entity)</h3>
+<pre><code>"scripts": {
+  "scale": "q.is_baby ? 0.5 : 1.0"
+}</code></pre>
+<h3>Variável pré-calculada</h3>
+<pre><code>"scripts": {
+  "pre_animation": [
+    "v.velocidade = q.modified_move_speed;"
+  ]
+}</code></pre>
+<p>Assim <code>v.velocidade</code> fica disponível em todas as animações da entidade.</p>
+<h3>Animation Controller (transições)</h3>
+<pre><code>"states": {
+  "default": {
+    "animations": ["parado"],
+    "transitions": [ { "andando": "q.is_moving" } ]
+  },
+  "andando": {
+    "animations": ["andar"],
+    "transitions": [ { "default": "!q.is_moving" } ]
+  }
+}</code></pre>
+<p>A transição acontece quando a expressão Molang vira verdadeira (diferente de 0).</p>
+</section>
+
+<section id="l8"><h2>Lição 8: Erros comuns e depuração</h2>
+<div class="tw"><table>
+<tr><th>Problema</th><th>Causa provável</th></tr>
+<tr><td>Nada acontece</td><td>Esqueceu as aspas: Molang no JSON é <strong>texto</strong> (<code>"q.is_baby"</code>)</td></tr>
+<tr><td>Valor sempre 0</td><td>Query escrita errada ou usada no arquivo errado</td></tr>
+<tr><td>Animação "pulando"</td><td>Ciclo mal calculado; revise a multiplicação do <code>sin</code>/<code>cos</code></td></tr>
+<tr><td>Erro com várias linhas</td><td>Faltou <code>return</code></td></tr>
+<tr><td>Variável vazia</td><td>Definida em outro lugar ou momento; use <code>?? 0</code></td></tr>
+<tr><td>Entidade não carrega</td><td>Vírgula faltando ou erro no JSON</td></tr>
+</table></div>
+<h3>Como depurar</h3>
+<ol>
+<li>Ative o <strong>Content Log</strong> em Configurações, Criador, Registro de Conteúdo (GUI). Ele mostra erros de Molang e JSON.</li>
+<li>Teste valores simples primeiro (ex.: <code>"10"</code>) antes de expressões complexas.</li>
+<li>Divida cálculos longos em variáveis <code>t.</code> para facilitar a leitura.</li>
+<li>Use <code>/reload</code> (ou reabra o mundo) para recarregar os arquivos.</li>
+</ol>
+</section>
+
+<section id="ex"><h2>Exercícios</h2>
+<p>Tente resolver antes de abrir a resposta.</p>
+<details><summary>1. Devolva 2 se a entidade for filhote e 1 se não for.</summary><p><code>q.is_baby ? 2 : 1</code></p></details>
+<details><summary>2. Faça um osso balançar entre -45° e +45° a cada 4 segundos.</summary><p><code>math.sin(q.anim_time * 90) * 45</code></p><p>Um ciclo completo são 360°; a 90° por segundo, leva 4 segundos.</p></details>
+<details><summary>3. Dê 1 somente quando a entidade estiver no chão e agachada.</summary><p><code>q.is_on_ground &amp;&amp; q.is_sneaking</code></p></details>
+<details><summary>4. Limite <code>q.ground_speed * 100</code> a no máximo 90.</summary><p><code>math.clamp(q.ground_speed * 100, 0, 90)</code></p></details>
+<details><summary>5. Sorteie um inteiro de 1 a 6, como um dado.</summary><p><code>math.random_integer(1, 6)</code></p></details>
+<h3>Próximos passos</h3>
+<ul>
+<li>Copie uma entidade vanilla e altere os valores para ver o efeito.</li>
+<li>Consulte a lista de queries em <strong>learn.microsoft.com/minecraft</strong>: ela muda a cada versão.</li>
+<li>Crie um mob próprio com animação de andar, textura por variante e escala de filhote.</li>
+</ul>
+</section>
+</main>
+<footer>Mini curso de Molang para Minecraft Bedrock</footer>
+<script>
+var L=[["l1","1 O que é"],["l2","2 Namespaces"],["l3","3 Operadores"],["l4","4 Matemática"],["l5","5 Variáveis"],["l6","6 Animações"],["l7","7 Render"],["l8","8 Erros"],["ex","Exercícios"]];
+var nav=document.getElementById("nav");
+L.forEach(function(x){var a=document.createElement("a");a.href="#"+x[0];a.textContent=x[1];a.dataset.id=x[0];
+a.onclick=function(e){e.preventDefault();document.getElementById(x[0]).scrollIntoView({behavior:"smooth"})};nav.appendChild(a)});
+var links=nav.querySelectorAll("a");
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle("on",a.dataset.id===e.target.id)});
+var on=nav.querySelector(".on");if(on)nav.scrollTo({left:on.offsetLeft-20,behavior:"smooth"})}})},{rootMargin:"-30% 0px -60% 0px"});
+document.querySelectorAll("section").forEach(function(s){io.observe(s)});
+</script>
+</body>
+</html>
